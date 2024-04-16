@@ -639,7 +639,11 @@ classdef createTable
 
                 sun(i,1:3) = [sunX, sunY, sunZ];
                 x1= createTable.tracking_angle(azimut(i),elAparent(i),latitude, 0);
+                zenith = 90 - elAparent(i);
                 sun(i,4) = x1;
+                sun(i,5) = azimut(i);
+                sun(i,6) = zenith;
+                sun(i,7) = 90;
 
 
                 

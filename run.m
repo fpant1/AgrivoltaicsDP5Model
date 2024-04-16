@@ -508,20 +508,23 @@ myData = myData.dailyenergy();
 % myData.shadingfactorplot();
 
 
-
+% saved as lowshading crop test
 
 % % ------------------ Calculate Crop yield ------------------------------
+
+growthtosen = 166;
 
 % Instantiate TomatoModel with parameters for SunnySD cultivar
 tomato_sunny_SD = CropModel(2800, 0.68, 520, 400, 6, 26, 1.00, 100, 5, 32, 45, 0.07, 2.5, 'tmyiradata.csv', 1.0923);
 tomato_sunny_SD = tomato_sunny_SD.calculate_temp_diff(0);
-tomato_sunny_SD = tomato_sunny_SD.fSolar();
+
 tomato_sunny_SD = tomato_sunny_SD.fTemp();
 tomato_sunny_SD = tomato_sunny_SD.fHeat() ;
 
 
 tomato_sunny_SD = tomato_sunny_SD.calculate_i50_list();
 tomato_sunny_SD = tomato_sunny_SD.calculate_fco2_list();
+tomato_sunny_SD = tomato_sunny_SD.fSolar(growthtosen);
 tomato_sunny_SD = tomato_sunny_SD.runModel(myData.energyvalues,45,210);
 
 % contourplo(setup_ground.points(:,1),setup_ground.points(:,2),myData.energyvalues(:,166));
