@@ -34,6 +34,7 @@ classdef CropModel
         fwater
         bio_cum_array
         bio_rate_array
+        awc
 
         rain
         eto
@@ -166,8 +167,8 @@ classdef CropModel
             end
         end
         
-        function obj = fSolar(obj, irrigation)
-            obj.irrigation = irrigation;
+        function obj = fWater(obj)
+           
             numberOfDays = length(obj.rain);
             S = (25400 / obj.RCN) - 254; % Calculate potential maximum retention
             Ia = 0.2 * S; % Initial abstraction (initially 20% of S)
@@ -194,7 +195,7 @@ classdef CropModel
                 end
                 
                 % Update available water Wi for the ith day using the water balance equation
-                Wi = Wi + Pi + obj.irrigation - Ti - Di - Ri;
+                Wi = Wi + Pi + obj.rain - Ti - Di - Ri;
                 
                 % Make sure Wi does not go negative
                 Wi = max(Wi, 0);

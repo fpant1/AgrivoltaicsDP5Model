@@ -31,14 +31,25 @@ classdef CropModel
         fheat
         fco2
         fco22
+        fwater
         bio_cum_array
         bio_rate_array
+
+        rain
+        eto
+        irrigation = 0 % mm/day (constant value for each day)
+        RZD = 800 % Root Zone Depth (mm)
+        DDC = 0.1 % Deep Drainage Coefficient
+        RCN = 85 % Runoff Curve Number
+
     end
     
     methods
         function obj = CropModel(Tsum, HI, I50A, I50B, Tbase, Topt, RUE, I50maxH, I50maxW, Tmax, Text, SCO2, Swater,filename,co2)
             obj.data = readtable(filename);
-            obj.temps =obj.data.('T2m')
+            obj.temps =obj.data.('T2m');
+            obj.rain = obj.data.('rain (mm)');
+            obj.eto = obj.data.('Eto');
             obj.Tsum = Tsum;
             obj.HI = HI;
             obj.I50A = I50A;
@@ -88,7 +99,7 @@ classdef CropModel
                 end_idx = i * interval_length;
                 
                 % Calculate the mean temperature for the current interval
-                obj.mean_temp(i) = mean(obj.temps(start_idx:end_idx))
+                obj.mean_temp(i) = mean(obj.temps(start_idx:end_idx));
                 obj.maxtemp(i) = max(obj.temps(start_idx:end_idx));
                 obj.mintemp(i) = min(obj.temps(start_idx:end_idx));
                 % Calculate the temperature difference for the current interval
@@ -113,31 +124,7 @@ classdef CropModel
         end
 
 
-        function obj = fSolar(obj)
-            solar_max = 0.95;
-            length(obj.TT);
-            for i = 1:length(obj.TT)
 
-                obj.TT(i)
-                if i < 166
-                    fsolar = solar_max / (1 + exp(-0.01 * (obj.TT(i) - obj.I50A))); % calculate fsolar using equation 1
-                else
-                    fsolar = solar_max / (1 + exp(0.01 * (obj.TT(i) - (obj.Tsum * obj.I50B)))); % calculate fsolar using equation 2
-                end
-                obj.fsolar(i) = fsolar; % save the value of fsolar to obj.fsolar at the correct position
-             
-            end
-%             % Create an array of time values (assuming one day intervals)
-%             time = 1:365;
-%             
-%             % Plot the solar values against time
-%             plot(time, obj.fsolar);
-%             
-%             % Set the axis labels and title
-%             xlabel('Time (days)');
-%             ylabel('Solar Values');
-%             title('Solar Values vs. Time');
-        end
 
 
 
@@ -179,6 +166,53 @@ classdef CropModel
             end
         end
         
+        function obj = fSolar(obj, irrigation)
+            obj.irrigation = irrigation;
+            numberOfDays = length(obj.rain);
+            S = (25400 / obj.RCN) - 254; % Calculate potential maximum retention
+            Ia = 0.2 * S; % Initial abstraction (initially 20% of S)
+            
+            % Initialize variables
+            obj.awc = zeros(numberOfDays, 1); % Initialize available water content array
+            Wi = 0; % Initialize available water in the root zone for the first day
+            
+            for i = 1:numberOfDays
+                % Calculate deep drainage Di using modified DDC (0.1)
+                theta_ai_bd = Wi / obj.RZD; % Available soil water content before drainage
+                % Assuming theta_m (soil water holding capacity) needs to be calculated or set here
+                theta_m = 0.19; % This is a placeholder value and should be calculated or set accordingly
+                Di = obj.DDC * (obj.RZD * (theta_ai_bd - theta_m));
+                
+                % Calculate surface runoff Ri
+                Pi = obj.rain(i); % Precipitation for the ith day
+                Ti = obj.eto(i); % Transpiration for the ith day (ETO)
+                initial_abstraction = Ti + Di; % Initial abstraction = Transpiration + Deep drainage
+                if (Pi - initial_abstraction) > 0
+                    Ri = ((Pi - initial_abstraction)^2) / (Pi - initial_abstraction + S);
+                else
+                    Ri = 0; % No runoff if precipitation is less than initial abstraction
+                end
+                
+                % Update available water Wi for the ith day using the water balance equation
+                Wi = Wi + Pi + obj.irrigation - Ti - Di - Ri;
+                
+                % Make sure Wi does not go negative
+                Wi = max(Wi, 0);
+                
+                % Calculate and store the available water content (awc) for the ith day
+                obj.awc(i) = Wi / obj.RZD;
+
+                % Calculate ARID index for the ith day
+                PAW = obj.awc(i); % Plant Available Water
+                ET_o = obj.eto(i); % Reference evapotranspiration
+                ARID = 1 - min(ET_o, 0.096 * PAW) / ET_o;
+                
+                % Calculate the water stress factor for the ith day
+                obj.fwater(i) = 1 - obj.Swater * ARID;
+
+
+            end
+        end
 
         function obj = calculate_i50_list(obj)
             obj.I50B_list = zeros(size(obj.fheat)); % initialize list of i50 values
@@ -186,6 +220,9 @@ classdef CropModel
             
             for i = 2:length(obj.fheat)
                 obj.I50B_list(i) = obj.I50B_list(i-1) + (obj.I50maxH*(1-obj.fheat(i-1)));
+            end
+            for i = 2:length(obj.fwater)
+                obj.I50B_list(i) = obj.I50B_list(i-1) + (obj.I50maxW*(1-obj.fwater(i-1)));
             end
         end
 
@@ -199,6 +236,31 @@ classdef CropModel
 
         end
 
+        function obj = fSolar(obj,growthtosen)
+            solar_max = 0.95;
+            length(obj.TT);
+            for i = 1:length(obj.TT)
+
+                obj.TT(i)
+                if i < growthtosen
+                    fsolar = solar_max / (1 + exp(-0.01 * (obj.TT(i) - obj.I50A))); % calculate fsolar using equation 1
+                else
+                    fsolar = solar_max / (1 + exp(0.01 * (obj.TT(i) - (obj.Tsum * obj.I50B_list(i))))); % calculate fsolar using equation 2
+                end
+                obj.fsolar(i) = fsolar; % save the value of fsolar to obj.fsolar at the correct position
+             
+            end
+            % Create an array of time values (assuming one day intervals)
+            time = 1:365;
+            
+            % Plot the solar values against time
+            plot(time, obj.fsolar);
+            
+            % Set the axis labels and title
+            xlabel('Time (days)');
+            ylabel('Solar Values');
+            title('Solar Values vs. Time');
+        end
 
         function obj = runModel(obj, energyvalues, start_day, end_day)
            
@@ -241,82 +303,9 @@ classdef CropModel
         end
 
 
-        function obj = plotcrops(obj, all_panels, all_beams, all_pylons, x_points, y_points)
-            % Plot the original panel and the modified panels
-            figure;
-            hold on;
-            for i = 1:length(all_panels)
-                patch('Vertices', all_panels{i}.vertices, ...
-                      'Faces', all_panels{i}.faces, ...
-                      'FaceColor', [0.0, 0.0, 1.0], ...
-                      'EdgeColor', [0.1, 0.1, 0.1], ...
-                      'FaceAlpha', 0.7);
-            end
-            % Plot the beams
-            for i = 1:length(all_beams)
-                patch('Vertices', all_beams{i}.vertices, ...
-                      'Faces', all_beams{i}.faces, ...
-                      'FaceColor', [0.5, 0.5, 0.5], ... % Grey for beams
-                      'EdgeColor', [0.1, 0.1, 0.1], ...
-                      'FaceAlpha', 0.7);
-            end
-        
-            % Plot the pylons
-            for i = 1:length(all_pylons)
-                patch('Vertices', all_pylons{i}.vertices, ...
-                      'Faces', all_pylons{i}.faces, ...
-                      'FaceColor', [0.5, 0.5, 0.5], ... % Grey for beams
-                      'EdgeColor', [0.1, 0.1, 0.1],
-                      'FaceAlpha', 0.7);
-            end
-        
-            % Add labels and title
-            xlabel('X');
-            ylabel('Y');
-            zlabel('Z');
-            title('Original Panel, Modified Panels, and Modified Beams');
-            axis equal;
-            grid on;
-            legend('Original Panel', 'Modified Panels', 'Modified Beam 1', 'Modified Beam 2');
-        
-            % Plot the sum output
-            sumout = obj.sum_outputs;
-%             stem3(x_points, y_points, sumout, 'Color', [0 0.5 0]);
-        
-            % Create a grid from the x and y data
-            [xgrid, ygrid] = meshgrid(unique(x_points), unique(y_points));
-            
-            % Create a matrix for the z data
-            zgrid = griddata(x_points, y_points, sumout, xgrid, ygrid, 'cubic');
-            
-            % Create the contour plot
-            contourf(xgrid, ygrid, zgrid);
-            colormap(flipud(colormap('summer')));
-            cb = colorbar;
-            title(cb, 'Relative Growth', 'FontSize', 28);
-        
-            view([-37.5 70]);
-        
-            % Add labels and title for the extra bit
-            init_time = datetime('24-Jul-2023 07:00:00');
-            curr_time = init_time;
-            titlestr = datestr(curr_time);
-            title(titlestr);
-        
-            % Save the figure
-            filename = 'goat2growthfigurefigure.png';
-            print(filename, '-dpng');
-        
-            hold off;
-
-        end
-
-      
-
-
 
     end
+
+
+
 end
-
-
-

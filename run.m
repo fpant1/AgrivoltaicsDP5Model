@@ -7,8 +7,8 @@ clc
 % ---------------------------- SYSTEM INPUTS --------------------
 
 % Call the getTMYData method
-latitude = 40;
-longitude = -5;
+latitude = 37.193;
+longitude = -5.853;
 startYear = 2000;
 endYear = 2020;
 
@@ -31,6 +31,41 @@ field_width = 30;
 field_area = (field_length * field_width / 10000);
 
 
+% Tracking algorithm inputs -----------
+
+Tracking_limit = 60; % Tracking rotation angle limit (clockwise)
+Position_A = 30; % Wind stow position
+Position_B = 0; % heavy precipitation position
+Position_C = 60; % low precipitation position
+heavy_rain = 0.004; 
+CT_s = 3648; % Start hour for critical growth period
+CT_e = 4368; % End hour for critical growth period
+ETo_average = 0.0696680980;
+
+%%%%%%%%%%% SUN ANGLES %%%%%%%%%%%
+year = 2019; % Integer representing the year
+resolution = 60; % Resolution in hours
+UTC = 1;
+
+altitude = 36;
+
+%%%%%%%%%%% Load the weather and data files %%%%%%%%%%%
+WEATHERFILE = importdata('WEATHERFILE.mat');
+DATA = importdata('DATA.mat');
+
+%%%%%%%%%%% Call the function %%%%%%%%%%%
+total_power_yearly = Tracking_Algorithm(Tracking_limit, Position_A, Position_B, Position_C, heavy_rain, CT_s, CT_e, ETo_average, year, resolution, UTC, latitude, longitude, altitude, WEATHERFILE, DATA);
+
+%%%%%%%%%%% Display the result %%%%%%%%%%%
+disp(['Total yearly power output: ', num2str(total_power_yearly), ' kWh']);
+
+
+
+
+
+
+
+
 % % ------------------------- Setup Agrivoltaic geometry-----------------
 % 
 % % -------------------theory ----------------------------------
@@ -48,30 +83,24 @@ field_area = (field_length * field_width / 10000);
 % Create an instance of the PVGISData class
 pvgis = PVGISData();
 
-% pv_data = pvgis.getPVData(latitude, longitude, 25.2);
-% disp(pv_data);
-% pv_data = pvgis.getPVData(latitude, longitude, 0.715);
-% % disp(pv_data);
-
 tmy_data = pvgis.getTMYData(latitude, longitude, startYear, endYear);
 % G_h_ - Global irradiance on the horizontal plane - 'W/m2'
 % Gb_n_ - Beam/direct irradiance on a plane always normal to sun rays - 'W/m2'
 % Gd_h_  - Diffuse irradiance on the horizontal plane - 'W/m2'
 
-
 % Display or process the TMY data as needed
 disp(tmy_data);
 
-% % Call the getPVData method
-% peakPower = 4000; % kW
-% 
+% % API call for power from PVGIS
+% peakPower = 0.715; % kW
 % pv_data = pvgis.getPVData(latitude, longitude, peakPower);
-
 % E_d - Average daily energy production from the given system - 'kWh/d'
 % E_m - Average monthly energy production from the given system - 'kWh/mo'
 % Display or process the PV data as needed
 % disp(pv_data);
 
+
+% %  API call for temperature data
 temp_data = pvgis.gettempData(latitude,longitude,  1);
 
 % --------------------------------Setup Structure -----------
