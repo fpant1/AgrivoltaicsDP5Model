@@ -128,7 +128,7 @@ function total_power_yearly = Tracking_Algorithm(Tracking_limit, Position_A, Pos
         total_power_daily = sum(total_power_daily, 2); % Sum the power output for each day
         
         % Calculate total power output yearly
-        total_power_yearly = sum(total_power, 'omitnan')
+        total_power_yearly = sum(total_power, 'omitnan');
         
         %%%%%%%%%%%%%%%%%%%% PLOTS %%%%%%%%%%%%%%%%%%%%
         

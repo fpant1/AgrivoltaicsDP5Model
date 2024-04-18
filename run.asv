@@ -53,6 +53,26 @@ altitude = 36;
 WEATHERFILE = importdata('WEATHERFILE.mat');
 DATA = importdata('DATA.mat');
 
+% Assuming WEATHERFILE is already imported and contains the hourly rainfall data in its second column.
+rainfall_hourly_table = WEATHERFILE(:,2); % Extract hourly rainfall table
+rainfall_hourly = table2array(rainfall_hourly_table); % Convert table to array
+
+% Multiply each value by 100
+rainfall_hourly = rainfall_hourly * 1000;
+% Initialize an empty array to store daily rainfall totals.
+rainfall_daily = [];
+
+% Calculate the number of days in the dataset (assuming complete days).
+numberOfDays = floor(height(rainfall_hourly_table) / 24);
+
+% Loop over the hourly data to sum every 24 hours into one day.
+for day = 1:numberOfDays
+    dailyTotal = sum(rainfall_hourly((day-1)*24+1 : day*24));
+    rainfall_daily = [rainfall_daily; dailyTotal]; % Append the daily total to the array.
+end
+
+% rainfall_daily now contains the daily rainfall totals.
+
 %%%%%%%%%%% Call the function %%%%%%%%%%%
 total_power_yearly = Tracking_Algorithm(Tracking_limit, Position_A, Position_B, Position_C, heavy_rain, CT_s, CT_e, ETo_average, year, resolution, UTC, latitude, longitude, altitude, WEATHERFILE, DATA);
 
@@ -527,12 +547,13 @@ myData = Irradiance(tmy_data);
 % % Save the variable to a .mat file
 % save(filename, 'shading_factor');
 
-% shading_factor = importdata('mod3_4row7space_5pan.mat');
+shading_factor = importdata('lowshadingcropinvest.mat');
 % shading_factor = shading_factor.shade_array;
+energyvalues = shading_factor.energyvalues;
 
-myData = myData.calcdata(shading_factor,diffuse_factor);
-% 
-myData = myData.dailyenergy();
+% myData = myData.calcdata(shading_factor,diffuse_factor);
+% % 
+% myData = myData.dailyenergy();
 
 % myData.shadingfactorplot();
 
@@ -543,18 +564,21 @@ myData = myData.dailyenergy();
 
 growthtosen = 166;
 
+gcr = 0.107;
 % Instantiate TomatoModel with parameters for SunnySD cultivar
-tomato_sunny_SD = CropModel(2800, 0.68, 520, 400, 6, 26, 1.00, 100, 5, 32, 45, 0.07, 2.5, 'tmyiradata.csv', 1.0923);
+tomato_sunny_SD = CropModel(2800, 0.68, 520, 400, 6, 26, 1.00, 100, 5, 32, 45, 0.07, 2.5, 'tmyiradata.csv', 1.0923, rainfall_daily, 0, gcr);
 tomato_sunny_SD = tomato_sunny_SD.calculate_temp_diff(0);
 
 tomato_sunny_SD = tomato_sunny_SD.fTemp();
 tomato_sunny_SD = tomato_sunny_SD.fHeat() ;
 
 
-tomato_sunny_SD = tomato_sunny_SD.calculate_i50_list();
+
 tomato_sunny_SD = tomato_sunny_SD.calculate_fco2_list();
+tomato_sunny_SD = tomato_sunny_SD.fWater();
+tomato_sunny_SD = tomato_sunny_SD.calculate_i50_list();
 tomato_sunny_SD = tomato_sunny_SD.fSolar(growthtosen);
-tomato_sunny_SD = tomato_sunny_SD.runModel(myData.energyvalues,45,210);
+tomato_sunny_SD = tomato_sunny_SD.runModel(energyvalues,45,210);
 
 % contourplo(setup_ground.points(:,1),setup_ground.points(:,2),myData.energyvalues(:,166));
 % ---------------------- OUTPUTS ETC. --------------------------------
@@ -562,23 +586,30 @@ tomato_sunny_SD = tomato_sunny_SD.runModel(myData.energyvalues,45,210);
 peakmodulePower = (num_panels*0.7);
 % Call the getPVData method
 % peakPower = 4000; % kW
-
-pv_data = pvgis.getPVData(latitude, longitude, peakmodulePower);
-disp(pv_data);
+% 
+% pv_data = pvgis.getPVData(latitude, longitude, peakmodulePower);
+% disp(pv_data);
 
 tomato_sunny_SD = tomato_sunny_SD.plotcrops(all_panels, all_beams,all_pylons,points_x,points_y);
 
 
 %  outputs
 
-yearly_module_output = pv_data.outputs.totals.vertical_axis.E_y;
+% yearly_module_output = pv_data.outputs.totals.vertical_axis.E_y;
 
-final_site_kWh_output = yearly_module_output * floor((field_length/module_spacing)) * floor((field_width/row_spacing));
+final_site_kWh_output = total_power_yearly * floor((field_length/module_spacing)) * floor((field_width/row_spacing));
 
 final_agricultural_output = tomato_sunny_SD.mean_outputs*field_area;
 
-
-
+% here is a run file, i need you to replicate it and turn it inlo a
+% sensityivity study which loops through changing some of the inputs and
+% storing the impact on the outputs for later analysis. The num_panels
+% should vary from 3,5,7. the row spacing should change from 5, 10, 15. the
+% crop protection should be 1 or zero, all the other parameters should be
+% fixed outside of the loop such as ;atitude longitude etc. at the end all
+% the data should be stored in a table with the heafings, num_panels, row
+% spacing, gcr, final_site_kWh_output, final_agricultural_output, crop
+% protection and this should be stored for each run and saved at the end
 
 % % Instantiate TomatoModel with parameters for Agriset761 cultivar
 % tomato_agriset761 = CropModel(2300, 0.50, 550, 300, 6, 26, 1.00, 100, 5, 32, 45, 0.07, 2.5);

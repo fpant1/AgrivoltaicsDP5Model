@@ -1,7 +1,7 @@
 classdef CropModel
     properties
         data
-        temps
+%         temps
         Tsum    % Cumulative temperature sum (degree days)
         HI      % Harvest index (dimensionless)
         I50A    % Parameter for calculating thermal time for vegetative growth (degree days)
@@ -23,6 +23,9 @@ classdef CropModel
         maxtemp
         mintemp
         sum_outputs
+        mean_outputs
+
+        gcr
         
         I50B_list
 
@@ -34,22 +37,28 @@ classdef CropModel
         fwater
         bio_cum_array
         bio_rate_array
+        awc
 
         rain
         eto
-        irrigation = 0 % mm/day (constant value for each day)
-        RZD = 800 % Root Zone Depth (mm)
+        irrigation % mm/day (constant value for each day)
+        RZD = 130 % Root Zone Depth (mm)
         DDC = 0.1 % Deep Drainage Coefficient
         RCN = 85 % Runoff Curve Number
+        least_shaded
+        middle_shaded
+        most_shaded
+        ARID
 
     end
     
     methods
-        function obj = CropModel(Tsum, HI, I50A, I50B, Tbase, Topt, RUE, I50maxH, I50maxW, Tmax, Text, SCO2, Swater,filename,co2)
+        function obj = CropModel(Tsum, HI, I50A, I50B, Tbase, Topt, RUE, I50maxH, I50maxW, Tmax, Text, SCO2, Swater,filename,co2,rain, irrigation, gcr)
             obj.data = readtable(filename);
-            obj.temps =obj.data.('T2m');
-            obj.rain = obj.data.('rain (mm)');
-            obj.eto = obj.data.('Eto');
+%             obj.temps =obj.data.('T2m');
+            obj.rain = rain;
+            obj.irrigation = irrigation;
+            obj.gcr = gcr;
             obj.Tsum = Tsum;
             obj.HI = HI;
             obj.I50A = I50A;
@@ -66,6 +75,9 @@ classdef CropModel
             obj.TT = 1;
             obj.co2 = 421; % ppm
             obj.fco22 = co2;
+            obj.least_shaded = obj.data.('least_shaded');
+            obj.middle_shaded = obj.data.('middle_shaded');
+            obj.most_shaded = obj.data.('most_shaded');
     
         end
         
@@ -80,12 +92,32 @@ classdef CropModel
             %   mean_temp: a vector containing the mean temperature over 24-hour intervals
             %   temp_diff: a vector containing the temperature difference over 24-hour intervals
             %   cum_diff: a vector containing the cumulative temperature difference over time
+                        
+
+            % Define your known x values for the shading levels
+            x_known = [0.105, 0.1972, 0.3381];
             
+            % Define your new gcr value
+            gcr = ...; % replace this with your actual gcr value
+            
+            % Initialize a vector to store the interpolated y values
+            % The length of the vector will be the same as the original data
+            interpolated_y = zeros(length(obj.least_shaded), 1);
+            
+            % Loop through each row and perform the interpolation
+            for i = 1:length(obj.least_shaded)
+                % Extract the known y values for this row from the object properties
+                y_known = [obj.least_shaded(i), obj.middle_shaded(i), obj.most_shaded(i)];
+                
+                % Interpolate the new y value for the given gcr
+                interpolated_y(i) = interp1(x_known, y_known, obj.gcr, 'linear', 'extrap');
+            end
+
             % Set the interval length to 24 hours
             interval_length = 24;
             
             % Calculate the number of intervals
-            num_intervals = floor(length(obj.temps) / interval_length);
+            num_intervals = floor(length(interpolated_y) / interval_length);
             
             % Initialize the output vectors
             mean_temp = zeros(num_intervals, 1);
@@ -99,9 +131,9 @@ classdef CropModel
                 end_idx = i * interval_length;
                 
                 % Calculate the mean temperature for the current interval
-                obj.mean_temp(i) = mean(obj.temps(start_idx:end_idx));
-                obj.maxtemp(i) = max(obj.temps(start_idx:end_idx));
-                obj.mintemp(i) = min(obj.temps(start_idx:end_idx));
+                obj.mean_temp(i) = mean(interpolated_y(start_idx:end_idx));
+                obj.maxtemp(i) = max(interpolated_y(start_idx:end_idx));
+                obj.mintemp(i) = min(interpolated_y(start_idx:end_idx));
                 % Calculate the temperature difference for the current interval
                 temp_diff(i) = obj.mean_temp(i) - base_temp;
                 
@@ -166,26 +198,61 @@ classdef CropModel
             end
         end
         
-        function obj = fSolar(obj, irrigation)
-            obj.irrigation = irrigation;
+
+        function y = calculate_eto(obj, avg_temp, i)
+
+            % Known values for interpolation
+            temp1 = 8.93;  % Temperature point 1
+            c1 = 4.56;     % c value at temperature point 1
+            
+            temp2 = 33.196; % Temperature point 2
+            c2 = 12.45 ;    % c value at temperature point 2
+            
+            % Calculate the slope of the line for 'c' interpolation
+            slope_c = (c2 - c1) / (temp2 - temp1);
+            
+            % Calculate the 'c' value for the given average temperature
+            % using linear interpolation between the two known points
+            c = c1 + slope_c * (avg_temp - temp1);
+            
+            % Calculate the value of 'y' using the provided equation
+            y = (-1.35 * obj.gcr) + c;
+
+            obj.eto(i) = y;
+        end
+
+
+        function obj = fWater(obj)
+           
             numberOfDays = length(obj.rain);
             S = (25400 / obj.RCN) - 254; % Calculate potential maximum retention
             Ia = 0.2 * S; % Initial abstraction (initially 20% of S)
             
             % Initialize variables
             obj.awc = zeros(numberOfDays, 1); % Initialize available water content array
-            Wi = 0; % Initialize available water in the root zone for the first day
+            obj.eto = zeros(numberOfDays, 1);
+            Wi = 10000; % Initialize available water in the root zone for the first day
             
             for i = 1:numberOfDays
-                % Calculate deep drainage Di using modified DDC (0.1)
-                theta_ai_bd = Wi / obj.RZD; % Available soil water content before drainage
-                % Assuming theta_m (soil water holding capacity) needs to be calculated or set here
-                theta_m = 0.19; % This is a placeholder value and should be calculated or set accordingly
-                Di = obj.DDC * (obj.RZD * (theta_ai_bd - theta_m));
+                % In your existing function or loop where you calculate Di
+                theta_ai_bd = Wi / obj.RZD; % Calculate the available soil water content before drainage
+                theta_m = 0.19; % Placeholder for water holding capacity (you may have a specific value for this)
                 
+                % Check if the available water content before drainage is greater than the water holding capacity
+                if theta_ai_bd > theta_m
+                    % If true, calculate deep drainage
+                    Di = obj.DDC * (obj.RZD * (theta_ai_bd - theta_m));
+                else
+                    % Otherwise, set deep drainage to 0
+                    Di = 0;
+                end
+                
+                avg_temp = obj.mean_temp(i);  
+
                 % Calculate surface runoff Ri
                 Pi = obj.rain(i); % Precipitation for the ith day
-                Ti = obj.eto(i); % Transpiration for the ith day (ETO)
+                Ti = calculate_eto(obj,avg_temp,i); % Transpiration for the ith day (ETO)
+
                 initial_abstraction = Ti + Di; % Initial abstraction = Transpiration + Deep drainage
                 if (Pi - initial_abstraction) > 0
                     Ri = ((Pi - initial_abstraction)^2) / (Pi - initial_abstraction + S);
@@ -194,25 +261,28 @@ classdef CropModel
                 end
                 
                 % Update available water Wi for the ith day using the water balance equation
-                Wi = Wi + Pi + obj.irrigation - Ti - Di - Ri;
+                Wi = Wi + Pi  - Ti ; %+ obj.irrigation- Di - Ri
                 
                 % Make sure Wi does not go negative
                 Wi = max(Wi, 0);
                 
                 % Calculate and store the available water content (awc) for the ith day
-                obj.awc(i) = Wi / obj.RZD;
+                awc_i = Wi / obj.RZD;
+                obj.awc(i) = awc_i;
 
                 % Calculate ARID index for the ith day
                 PAW = obj.awc(i); % Plant Available Water
-                ET_o = obj.eto(i); % Reference evapotranspiration
+                ET_o = Ti; % Reference evapotranspiration
                 ARID = 1 - min(ET_o, 0.096 * PAW) / ET_o;
+                obj.ARID(i) = ARID;
                 
                 % Calculate the water stress factor for the ith day
-                obj.fwater(i) = 1 - obj.Swater * ARID;
+                obj.fwater(i) = 1 - (obj.Swater * ARID);
 
 
             end
         end
+        
 
         function obj = calculate_i50_list(obj)
             obj.I50B_list = zeros(size(obj.fheat)); % initialize list of i50 values
@@ -224,6 +294,23 @@ classdef CropModel
             for i = 2:length(obj.fwater)
                 obj.I50B_list(i) = obj.I50B_list(i-1) + (obj.I50maxW*(1-obj.fwater(i-1)));
             end
+        
+                    % Create a new figure for plotting
+            figure;
+        
+            % Generate x values corresponding to the length of i50B_list
+            x_values = 1:length(obj.I50B_list);
+        
+            % Plot i50B_list against the generated x values
+            plot(x_values, obj.I50B_list, 'b-o', 'LineWidth', 2, 'MarkerFaceColor', 'blue');
+        
+            % Set the axis labels and title
+            xlabel('Index');
+            ylabel('i50B List Values');
+            title('Plot of i50B List Values');
+        
+            % Add grid lines for better readability
+            grid on;
         end
 
 
@@ -245,21 +332,28 @@ classdef CropModel
                 if i < growthtosen
                     fsolar = solar_max / (1 + exp(-0.01 * (obj.TT(i) - obj.I50A))); % calculate fsolar using equation 1
                 else
-                    fsolar = solar_max / (1 + exp(0.01 * (obj.TT(i) - (obj.Tsum * obj.I50B_list(i))))); % calculate fsolar using equation 2
+                    fsolar = solar_max / (1 + exp(0.01 * (obj.TT(i) - (obj.Tsum - obj.I50B_list(i))))); % calculate fsolar using equation 2
                 end
                 obj.fsolar(i) = fsolar; % save the value of fsolar to obj.fsolar at the correct position
              
             end
+             % Create a new figure for plotting
+            figure;
+        
             % Create an array of time values (assuming one day intervals)
-            time = 1:365;
-            
+            time = 1:length(obj.fsolar);
+        
             % Plot the solar values against time
             plot(time, obj.fsolar);
-            
+        
             % Set the axis labels and title
             xlabel('Time (days)');
             ylabel('Solar Values');
             title('Solar Values vs. Time');
+        
+            % Optionally set the plot limits and grid
+            xlim([1 length(obj.fsolar)]);
+            grid on;
         end
 
         function obj = runModel(obj, energyvalues, start_day, end_day)
@@ -285,7 +379,8 @@ classdef CropModel
                 % Loop through each day of radiation
                 for j = start_day:end_day
                     % Calculate the output for this day using the equation and constants
-                    bio_rate = energyvalues(i,j)*obj.fsolar(j)*obj.RUE*obj.co2(j)*obj.ftemp(j)*obj.fheat(j);
+                    reduction = min(obj.fheat(j), obj.fwater(j));
+                    bio_rate = energyvalues(i,j)*obj.fsolar(j)*obj.RUE*obj.co2(j)*obj.ftemp(j)*reduction;
                     
                     output = output + bio_rate;
                     bio_cum_array(i,j) = output;
@@ -299,9 +394,78 @@ classdef CropModel
             obj.sum_outputs = sum_outputs;
             obj.bio_cum_array = bio_cum_array;
             obj.bio_rate_array = bio_rate_array;
+            obj.mean_outputs = mean(obj.sum_outputs,1);
 
         end
+        function obj = plotcrops(obj, all_panels, all_beams, all_pylons, x_points, y_points)
+            % Plot the original panel and the modified panels
+            figure;
+            hold on;
+            for i = 1:length(all_panels)
+                patch('Vertices', all_panels{i}.vertices, ...
+                      'Faces', all_panels{i}.faces, ...
+                      'FaceColor', [0 0.4470 0.7410], ...
+                      'EdgeColor', [0.1, 0.1, 0.1], ...
+                      'FaceAlpha', 0.7);
+            end
+            % Plot the beams
+            for i = 1:length(all_beams)
+                patch('Vertices', all_beams{i}.vertices, ...
+                      'Faces', all_beams{i}.faces, ...
+                      'FaceColor', [0.5, 0.5, 0.5], ... % Grey for beams
+                      'EdgeColor', [0.1, 0.1, 0.1], ...
+                      'FaceAlpha', 0.7);
+            end
+        
+            % Plot the pylons
+            for i = 1:length(all_pylons)
+                patch('Vertices', all_pylons{i}.vertices, ...
+                      'Faces', all_pylons{i}.faces, ...
+                      'FaceColor', [0.5, 0.5, 0.5], ... % Grey for beams
+                      'EdgeColor', [0.1, 0.1, 0.1],...
+                      'FaceAlpha', 0.7);
+            end
+        
+            % Add labels and title
+            xlabel('X');
+            ylabel('Y');
+            zlabel('Z');
+            title('Original Panel, Modified Panels, and Modified Beams');
+            axis equal;
+            grid on;
+            legend('Original Panel', 'Modified Panels', 'Modified Beam 1', 'Modified Beam 2');
+        
+            % Plot the sum output
+            sumout = obj.sum_outputs;
+%             stem3(x_points, y_points, sumout, 'Color', [0 0.5 0]);
+        
+            % Create a grid from the x and y data
+            [xgrid, ygrid] = meshgrid(unique(x_points), unique(y_points));
+            
+            % Create a matrix for the z data
+            zgrid = griddata(x_points, y_points, sumout, xgrid, ygrid, 'cubic');
+            
+            % Create the contour plot
+            contourf(xgrid, ygrid, zgrid);
+            colormap(flipud(colormap('summer')));
+            cb = colorbar;
+            title(cb, 'Relative Growth', 'FontSize', 28);
+        
+            view([-42.85,26.16]);
+        
+            % Add labels and title for the extra bit
+            init_time = datetime('24-Jul-2023 07:00:00');
+            curr_time = init_time;
+            titlestr = datestr(curr_time);
+            title(titlestr);
+        
+            % Save the figure
+            filename = 'goat2growthfigurefigure.png';
+            print(filename, '-dpng');
+        
+            hold off;
 
+        end
 
 
     end

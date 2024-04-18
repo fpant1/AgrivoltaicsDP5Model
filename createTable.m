@@ -678,7 +678,7 @@ classdef createTable
 
             new_modules = createTable.createfullModules(num_modules_x, num_modules_y, module_spacing, row_spacing, tracked_geometry.(field_name));%, new_vertices_array{3613,1}
 
-            createTable.plotarray(new_modules,panel_faces, beam_faces, pylon_faces,  new_vertices_array{x,1}, x);
+%             createTable.plotarray(new_modules,panel_faces, beam_faces, pylon_faces,  new_vertices_array{x,1}, x);
             
 %             is_shaded = 1;
             is_shaded = createShadow.check_shaded(new_vertices_array,setup_ground);
