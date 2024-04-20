@@ -20,7 +20,7 @@ num_panels = 4;  % Adjust as needed
 num_modules_x = 3;
 num_modules_y = 4;
 module_spacing = 10.5;
-row_spacing = 15;
+row_spacing = 6;
 total_modules = num_modules_y * num_modules_x;
 
 
@@ -371,7 +371,7 @@ shift_distance = 10;  % Adjust this value as needed
 
 
 % Choose rotation angles from -50 to 50 degrees (in radians)
-angles_degrees = -50:1:50;
+angles_degrees = -60:1:60;
 angles_radians = deg2rad(angles_degrees);
 
 % Initialize structure to store rotated vertices for each angle
@@ -505,7 +505,7 @@ end
 % area depending on level of fidelity
 
 
-setup_ground = createGround(10,20,5,20,10,10);
+setup_ground = createGround(10,25,5,20,10,10);
 points_x = setup_ground.points(:,1);
 points_y = setup_ground.points(:,2);
 % setup_ground.draw
@@ -547,13 +547,13 @@ myData = Irradiance(tmy_data);
 % % Save the variable to a .mat file
 % save(filename, 'shading_factor');
 
-shading_factor = importdata('lowshadingcropinvest.mat');
+% shading_factor = importdata('lowshadingcropinvest.mat');
 % shading_factor = shading_factor.shade_array;
-energyvalues = shading_factor.energyvalues;
+% energyvalues = shading_factor.energyvalues;
 
-% myData = myData.calcdata(shading_factor,diffuse_factor);
+myData = myData.calcdata(shading_factor,diffuse_factor);
 % % 
-% myData = myData.dailyenergy();
+myData = myData.dailyenergy();
 
 % myData.shadingfactorplot();
 
@@ -564,7 +564,7 @@ energyvalues = shading_factor.energyvalues;
 
 growthtosen = 166;
 
-gcr = 0.107;
+% gcr = 0.107;
 % Instantiate TomatoModel with parameters for SunnySD cultivar
 tomato_sunny_SD = CropModel(2800, 0.68, 520, 400, 6, 26, 1.00, 100, 5, 32, 45, 0.07, 2.5, 'tmyiradata.csv', 1.0923, rainfall_daily, 0, gcr);
 tomato_sunny_SD = tomato_sunny_SD.calculate_temp_diff(0);
@@ -578,7 +578,7 @@ tomato_sunny_SD = tomato_sunny_SD.calculate_fco2_list();
 tomato_sunny_SD = tomato_sunny_SD.fWater();
 tomato_sunny_SD = tomato_sunny_SD.calculate_i50_list();
 tomato_sunny_SD = tomato_sunny_SD.fSolar(growthtosen);
-tomato_sunny_SD = tomato_sunny_SD.runModel(energyvalues,45,210);
+tomato_sunny_SD = tomato_sunny_SD.runModel(myData.energyvalues,45,210);
 
 % contourplo(setup_ground.points(:,1),setup_ground.points(:,2),myData.energyvalues(:,166));
 % ---------------------- OUTPUTS ETC. --------------------------------

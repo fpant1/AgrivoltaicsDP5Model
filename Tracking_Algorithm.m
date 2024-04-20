@@ -1,5 +1,5 @@
 
-function total_power_yearly = Tracking_Algorithm(Tracking_limit, Position_A, Position_B, Position_C, heavy_rain, CT_s, CT_e, ...
+function [total_power_yearly, panel_angle] = Tracking_Algorithm(Tracking_limit, Position_A, Position_B, Position_C, heavy_rain, CT_s, CT_e, ...
     ETo_average, year, resolution, UTC, latitude, longitude, altitude, weather_file_path, data_file_path)
 
         t1 = datetime(year, 1, 1, 0, 0, 0);                             % start time

@@ -35,8 +35,8 @@ DATA = importdata('DATA.mat');
 results = table();
 
 % Sensitivity study ranges
-num_panels_range = [3, 5, 7];
-row_spacing_range = [5, 10, 15];
+num_panels_range = [3, 5, 6, 7];
+row_spacing_range = [5, 7.5,10,12.5, 15];
 crop_protection_range = [0, 1];
 
 
@@ -98,7 +98,7 @@ end
 % rainfall_daily now contains the daily rainfall totals.
 
 %%%%%%%%%%% Call the function %%%%%%%%%%%
-total_power_yearly = Tracking_Algorithm(Tracking_limit, Position_A, Position_B, Position_C, heavy_rain, CT_s, CT_e, ETo_average, year, resolution, UTC, latitude, longitude, altitude, WEATHERFILE, DATA);
+[total_power_yearly, tracking_angles] = Tracking_Algorithm(Tracking_limit, Position_A, Position_B, Position_C, heavy_rain, CT_s, CT_e, ETo_average, year, resolution, UTC, latitude, longitude, altitude, WEATHERFILE, DATA);
 
 %%%%%%%%%%% Display the result %%%%%%%%%%%
 disp(['Total yearly power output: ', num2str(total_power_yearly), ' kWh']);
@@ -123,14 +123,15 @@ temp_data = pvgis.gettempData(latitude,longitude,  1);
 % area depending on level of fidelity
 
 
-setup_ground = createGround(10,25,5,20,3,3);
+setup_ground = createGround(10,25,5,20,10,10);
 points_x = setup_ground.points(:,1);
 points_y = setup_ground.points(:,2);
 % setup_ground.draw
 
 % Loop through each combination of parameters
 counter = 1; % Counter for indexing into the results table
-for num_panels = num_panels_range
+num_panels = 4;
+% for num_panels = num_panels_range
     for row_spacing = row_spacing_range
 %         for crop_protection = crop_protection_range
             
@@ -342,7 +343,7 @@ for num_panels = num_panels_range
         
         
         % Choose rotation angles from -50 to 50 degrees (in radians)
-        angles_degrees = -50:1:50;
+        angles_degrees = -60:1:60;
         angles_radians = deg2rad(angles_degrees);
         
         % Initialize structure to store rotated vertices for each angle
@@ -415,7 +416,7 @@ for num_panels = num_panels_range
 
             % % year,resolution,UTC,latitude,longitude,altitude,blocking_object,setup_ground
             [shading_factor, vertices, max_x_offset, max_y_offset] = createTable.shadingFactor(2019,60,1,37.193,-5.853,36,rotated_struct, ...
-                    setup_ground.points, num_modules_y, num_modules_x, module_spacing, row_spacing, all_panels{1}.faces, all_beams{1}.faces, all_pylons{1}.faces, num_modules_y);
+                    setup_ground.points, num_modules_y, num_modules_x, module_spacing, row_spacing, all_panels{1}.faces, all_beams{1}.faces, all_pylons{1}.faces, num_modules_y, tracking_angles);
        
             [diffuse_factor,gcr] = createTable.diffuseappr(max_x_offset, max_y_offset, panel_area,total_modules, max_height, num_panels);
             
@@ -446,10 +447,10 @@ for num_panels = num_panels_range
                         counter = counter + 1;
 %         end
     end
-end
+% end
 
 % Save the results table to a file
-save('sensitivity_study_results.mat', 'results');
+save('saturday_sensitivity_study_results.mat', 'results');
 
 % Display the first few rows of the results for verification
 disp(results(1:5,:));

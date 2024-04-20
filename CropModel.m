@@ -295,22 +295,22 @@ classdef CropModel
                 obj.I50B_list(i) = obj.I50B_list(i-1) + (obj.I50maxW*(1-obj.fwater(i-1)));
             end
         
-                    % Create a new figure for plotting
-            figure;
-        
-            % Generate x values corresponding to the length of i50B_list
-            x_values = 1:length(obj.I50B_list);
-        
-            % Plot i50B_list against the generated x values
-            plot(x_values, obj.I50B_list, 'b-o', 'LineWidth', 2, 'MarkerFaceColor', 'blue');
-        
-            % Set the axis labels and title
-            xlabel('Index');
-            ylabel('i50B List Values');
-            title('Plot of i50B List Values');
-        
-            % Add grid lines for better readability
-            grid on;
+%                     % Create a new figure for plotting
+%             figure;
+%         
+%             % Generate x values corresponding to the length of i50B_list
+%             x_values = 1:length(obj.I50B_list);
+%         
+%             % Plot i50B_list against the generated x values
+%             plot(x_values, obj.I50B_list, 'b-o', 'LineWidth', 2, 'MarkerFaceColor', 'blue');
+%         
+%             % Set the axis labels and title
+%             xlabel('Index');
+%             ylabel('i50B List Values');
+%             title('Plot of i50B List Values');
+%         
+%             % Add grid lines for better readability
+%             grid on;
         end
 
 
@@ -337,23 +337,23 @@ classdef CropModel
                 obj.fsolar(i) = fsolar; % save the value of fsolar to obj.fsolar at the correct position
              
             end
-             % Create a new figure for plotting
-            figure;
-        
-            % Create an array of time values (assuming one day intervals)
-            time = 1:length(obj.fsolar);
-        
-            % Plot the solar values against time
-            plot(time, obj.fsolar);
-        
-            % Set the axis labels and title
-            xlabel('Time (days)');
-            ylabel('Solar Values');
-            title('Solar Values vs. Time');
-        
-            % Optionally set the plot limits and grid
-            xlim([1 length(obj.fsolar)]);
-            grid on;
+%              % Create a new figure for plotting
+%             figure;
+%         
+%             % Create an array of time values (assuming one day intervals)
+%             time = 1:length(obj.fsolar);
+%         
+%             % Plot the solar values against time
+%             plot(time, obj.fsolar);
+%         
+%             % Set the axis labels and title
+%             xlabel('Time (days)');
+%             ylabel('Solar Values');
+%             title('Solar Values vs. Time');
+%         
+%             % Optionally set the plot limits and grid
+%             xlim([1 length(obj.fsolar)]);
+%             grid on;
         end
 
         function obj = runModel(obj, energyvalues, start_day, end_day)

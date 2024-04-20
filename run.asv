@@ -20,7 +20,7 @@ num_panels = 4;  % Adjust as needed
 num_modules_x = 3;
 num_modules_y = 4;
 module_spacing = 10.5;
-row_spacing = 15;
+row_spacing = 6;
 total_modules = num_modules_y * num_modules_x;
 
 
@@ -601,15 +601,7 @@ final_site_kWh_output = total_power_yearly * floor((field_length/module_spacing)
 
 final_agricultural_output = tomato_sunny_SD.mean_outputs*field_area;
 
-% here is a run file, i need you to replicate it and turn it inlo a
-% sensityivity study which loops through changing some of the inputs and
-% storing the impact on the outputs for later analysis. The num_panels
-% should vary from 3,5,7. the row spacing should change from 5, 10, 15. the
-% crop protection should be 1 or zero, all the other parameters should be
-% fixed outside of the loop such as ;atitude longitude etc. at the end all
-% the data should be stored in a table with the heafings, num_panels, row
-% spacing, gcr, final_site_kWh_output, final_agricultural_output, crop
-% protection and this should be stored for each run and saved at the end
+
 
 % % Instantiate TomatoModel with parameters for Agriset761 cultivar
 % tomato_agriset761 = CropModel(2300, 0.50, 550, 300, 6, 26, 1.00, 100, 5, 32, 45, 0.07, 2.5);

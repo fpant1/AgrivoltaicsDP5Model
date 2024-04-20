@@ -603,7 +603,7 @@ classdef createTable
         %     MaxAngle of 180 degrees allows for full rotation.
        
         axis_tilt = 0;
-        max_angle = 50;
+        max_angle = 60;
       
         zenith = 90 - elapparent;
 
@@ -615,7 +615,7 @@ classdef createTable
         end
 
         function [is_shaded, vertices, max_x_offset,max_y_offset] = shadingFactor(year,resolution,UTC,latitude,...
-                longitude,altitude,blocking_object,setup_ground, num_modules_y, num_modules_x, module_spacing, row_spacing, panel_faces, beam_faces, pylon_faces, x)
+                longitude,altitude,blocking_object,setup_ground, num_modules_y, num_modules_x, module_spacing, row_spacing, panel_faces, beam_faces, pylon_faces, x, tracking_angles)
             % returns the shading factors for a given time and location
             all_TT = struct();  % create structure to save tables
             t1 = datetime(year, 1, 1, 0, 0, 0);                             % start time
@@ -638,7 +638,7 @@ classdef createTable
                 
 
                 sun(i,1:3) = [sunX, sunY, sunZ];
-                x1= createTable.tracking_angle(azimut(i),elAparent(i),latitude, 0);
+                 x1= createTable.tracking_angle(azimut(i),elAparent(i),latitude, 0);
                 zenith = 90 - elAparent(i);
                 sun(i,4) = x1;
                 sun(i,5) = azimut(i);
@@ -652,7 +652,8 @@ classdef createTable
 
             tracked_geometry = struct();
             for i = 1:length(sun(:,4))
-                tracking_angle = round(sun(i, 4));
+%                 tracking_angle = round(tracking_angles(i));
+                tracking_angle = round(sun(i,4));
                 
                 % Construct angle name based on convention
                 if tracking_angle < 0
