@@ -123,7 +123,7 @@ temp_data = pvgis.gettempData(latitude,longitude,  1);
 % area depending on level of fidelity
 
 
-setup_ground = createGround(10,25,5,20,10,10);
+setup_ground = createGround(-20,-10,-20,-10,4,4);
 points_x = setup_ground.points(:,1);
 points_y = setup_ground.points(:,2);
 % setup_ground.draw
@@ -131,8 +131,9 @@ points_y = setup_ground.points(:,2);
 % Loop through each combination of parameters
 counter = 1; % Counter for indexing into the results table
 num_panels = 4;
+row_spacing = 6;
 % for num_panels = num_panels_range
-    for row_spacing = row_spacing_range
+%     for row_spacing = row_spacing_range
 %         for crop_protection = crop_protection_range
             
 
@@ -446,11 +447,11 @@ num_panels = 4;
             results(counter,:) = table(total_panels,num_modules, num_rows, num_panels, row_spacing, gcr, installed_capacity_kW, final_site_kWh_output, final_agricultural_output);
                         counter = counter + 1;
 %         end
-    end
+%     end
 % end
 
 % Save the results table to a file
-save('saturday_sensitivity_study_results.mat', 'results');
+save('no_protect_plotensitivity_study_results.mat', 'results');
 
 % Display the first few rows of the results for verification
 disp(results(1:5,:));

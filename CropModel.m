@@ -50,6 +50,11 @@ classdef CropModel
         most_shaded
         ARID
 
+        crop_protection_temp
+        crop_protection_eto
+        no_protect_eto
+        no_protect_temp
+
     end
     
     methods
@@ -78,6 +83,10 @@ classdef CropModel
             obj.least_shaded = obj.data.('least_shaded');
             obj.middle_shaded = obj.data.('middle_shaded');
             obj.most_shaded = obj.data.('most_shaded');
+            obj.crop_protection_temp = obj.data.('crop_protection_temp');
+            obj.crop_protection_eto = obj.data.('crop_protection_eto');
+            obj.no_protect_eto = obj.data.('no_protect_eto');
+            obj.no_protect_temp = obj.data.('no_protect_temp');
     
         end
         
@@ -117,7 +126,7 @@ classdef CropModel
             interval_length = 24;
             
             % Calculate the number of intervals
-            num_intervals = floor(length(interpolated_y) / interval_length);
+            num_intervals = floor(length(obj.no_protect_temp) / interval_length);
             
             % Initialize the output vectors
             mean_temp = zeros(num_intervals, 1);
@@ -129,12 +138,26 @@ classdef CropModel
                 % Get the indices for the current interval
                 start_idx = (i - 1) * interval_length + 1;
                 end_idx = i * interval_length;
-                
+%                 
                 % Calculate the mean temperature for the current interval
                 obj.mean_temp(i) = mean(interpolated_y(start_idx:end_idx));
                 obj.maxtemp(i) = max(interpolated_y(start_idx:end_idx));
                 obj.mintemp(i) = min(interpolated_y(start_idx:end_idx));
-                % Calculate the temperature difference for the current interval
+%                 Calculate the temperature difference for the current interval
+ 
+%                 % Calculate the mean temperature for the current interval
+%                 obj.mean_temp(i) = mean(obj.crop_protection_temp(start_idx:end_idx));
+%                 obj.maxtemp(i) = max(obj.crop_protection_temp(start_idx:end_idx));
+%                 obj.mintemp(i) = min(obj.crop_protection_temp(start_idx:end_idx));
+                % Calculate the mean temperature for the current interval
+                
+%                 
+%                 obj.mean_temp(i) = mean(obj.no_protect_temp(start_idx:end_idx));
+%                 obj.maxtemp(i) = max(obj.no_protect_temp(start_idx:end_idx));
+%                 obj.mintemp(i) = min(obj.no_protect_temp(start_idx:end_idx));
+% 
+
+%                 Calculate the temperature difference for the current interval
                 temp_diff(i) = obj.mean_temp(i) - base_temp;
                 
                 % If the temperature difference is negative, set it to zero
@@ -218,6 +241,16 @@ classdef CropModel
             % Calculate the value of 'y' using the provided equation
             y = (-1.35 * obj.gcr) + c;
 
+                    % Calculate the start and end index for the current day
+%             startIndex = (i - 1) * 24 + 1;
+%             endIndex = i * 24;
+%             if endIndex <= length(obj.crop_protection_eto)
+%                 y = sum(obj.no_protect_eto(startIndex:endIndex));
+%             else
+%                 % Handle case where the data length is not a perfect multiple of 24
+%                 y = sum(obj.no_protect_eto(startIndex:end));
+%             end
+
             obj.eto(i) = y;
         end
 
@@ -252,6 +285,8 @@ classdef CropModel
                 % Calculate surface runoff Ri
                 Pi = obj.rain(i); % Precipitation for the ith day
                 Ti = calculate_eto(obj,avg_temp,i); % Transpiration for the ith day (ETO)
+                
+                irrigation = Ti*0.7;
 
                 initial_abstraction = Ti + Di; % Initial abstraction = Transpiration + Deep drainage
                 if (Pi - initial_abstraction) > 0
@@ -261,7 +296,7 @@ classdef CropModel
                 end
                 
                 % Update available water Wi for the ith day using the water balance equation
-                Wi = Wi + Pi  - Ti ; %+ obj.irrigation- Di - Ri
+                Wi = Wi + Pi - Ti ; %+ obj.irrigation- Di - Ri + irrigation 
                 
                 % Make sure Wi does not go negative
                 Wi = max(Wi, 0);
