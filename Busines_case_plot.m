@@ -129,39 +129,47 @@ plotelecline70 = elecline70.*Z3grid;
 plotelecline70(plotelecline70==0) = nan;
 
 
+fontsize1 = 40;
+
 % Save the updated combined results to a CSV file
 writetable(combinedResults, 'adjust_max_crop_sensitivity_study_results.csv');
 
-% % Create the first surface plot
-% figure;
-% surf(Xgrid, Ygrid, Z1grid);
-% shading interp;
-% hold on;
-% 
-% % Add contour lines to the first surface plot
-% contour3(Xgrid, Ygrid, Z1grid, 'k');
-% 
-% % Customize the colormap
-% % colormap parula;
-% % Set the font size for axes labels and title
-% ax = gca; % Current axes handle
-% ax.FontSize = 22; % Set the font size for axis tick labels
-% ax.XTick = [3, 4, 5, 6, 7]; % Set specific x-axis ticks
-% % Add labels and legend
-% xlabel('Number of Panels', 'FontSize', 22);
-% ylabel('Row spacing (m)', 'FontSize', 22);
-% zlabel('Number of Panels', 'FontSize', 22);
-% title('Electrical Yield as a Function of Row Spaciing and Number of Panels', 'FontSize', 22);
-% cb = colorbar;
-% cb.Label.String = 'Electical Yield (kWh)';
-% cb.Label.FontSize = 22; % Set the font size for the color bar label
-% cb.FontSize = 22; 
-% % legend('Electical Yield (kWh)', 'FontSize', 22);
-% view(2);
-% set(gcf, 'WindowState', 'maximized');
-% 
-% % Release the hold on the current figure
-% hold off;
+% Create the first surface plot
+figure;
+surf(Xgrid, Ygrid, Z1grid);
+shading interp;
+hold on;
+
+% Add contour lines to the first surface plot
+contour3(Xgrid, Ygrid, Z1grid, 'k');
+
+% Customize the colormap
+% colormap parula;
+% Set the font size for axes labels and title
+ax = gca; % Current axes handle
+ax.FontSize = fontsize1; % Set the font size for axis tick labels
+ax.XTick = [3, 4, 5, 6, 7]; % Set specific x-axis ticks
+% ax.YTick = [5,6,7,8,9,10,11,12,13,14,15];
+ax.YTick = [5,7.5,10,12.5,15];
+ax.TickLabelInterpreter = 'latex';
+% Set tick label interpreter to LaTeX
+ax.TickLabelInterpreter = 'latex';
+% Add labels and legend
+xlabel('Number of Panels', 'FontSize', fontsize1);
+ylabel('Row spacing (m)', 'FontSize', fontsize1);
+zlabel('Number of Panels', 'FontSize', fontsize1);
+% title('Electrical Yield as a Function of Row Spaciing and Number of Panels', 'FontSize', fontsize1);
+cb = colorbar;
+cb.Label.String = 'Electical Yield (kWh)';
+cb.Label.FontSize = fontsize1; % Set the font size for the color bar label
+cb.FontSize = fontsize1;
+cb.TickLabelInterpreter = 'latex';
+% legend('Electical Yield (kWh)', 'FontSize', 22);
+view(2);
+set(gcf, 'WindowState', 'maximized');
+
+% Release the hold on the current figure
+hold off;
 
 
 
@@ -189,93 +197,111 @@ writetable(combinedResults, 'adjust_max_crop_sensitivity_study_results.csv');
 % % colormap parula;
 % % Set the font size for axes labels and title
 % ax = gca; % Current axes handle
-% ax.FontSize = 22; % Set the font size for axis tick labels
+% ax.FontSize = fontsize1; % Set the font size for axis tick labels
+% ax.YTick = [5,7.5,10,12.5,15];
 % ax.XTick = [3, 4, 5, 6, 7]; % Set specific x-axis ticks
 % % Add labels and legend
-% xlabel('Number of Panels', 'FontSize', 22);
-% ylabel('Row spacing (m)', 'FontSize', 22);
-% zlabel('Agricultural Yield', 'FontSize', 22);
-% title('Agricultural yield as a Function of row spacing and number of panels', 'FontSize', 22);
+% xlabel('Number of Panels', 'FontSize', fontsize1);
+% ylabel('Row spacing (m)', 'FontSize', fontsize1);
+% zlabel('Agricultural Yield', 'FontSize', fontsize1);
+% title('Agricultural yield as a Function of row spacing and number of panels', 'FontSize', fontsize1);
 % cb = colorbar;
 % cb.Label.String = 'Agricultural Yield (t/ha)';
-% cb.Label.FontSize = 22; % Set the font size for the color bar label
-% cb.FontSize = 22; 
+% cb.Label.FontSize = fontsize1; % Set the font size for the color bar label
+% cb.FontSize = fontsize1; 
+% 
 % % legend('Agricultural Yield (t/ha)', 'FontSize', 22);
 % view(2);
 % set(gcf, 'WindowState', 'maximized');
 % 
+% 
+
+% 
 % % Release the hold on the current figure
 % hold off;
-% Plot for Land Efficiency
+% % Plot for Land Efficiency
+% figure;
+% plot3(Xgrid, Ygrid, plotcontourline70, 'ro', 'MarkerSize', 2);
+% hold on% Red circles for 70% agricultural yield
+% plot3(Xgrid, Ygrid, plotelecline70, 'bo', 'MarkerSize', 2); % Blue circles for 70% electrical yield
+% 
+% surf(Xgrid, Ygrid, Z3grid); % Plotting the 3D surface
+% shading interp; % Interpolating shading for surface
+% 
+% 
+% % Add contour lines to the land efficiency surface plot
+% 
+% 
+% % Plot specific contour lines representing specific yields
+% 
+% contour3(Xgrid, Ygrid, Z3grid, 'k'); % Black contour lines
+% % Set the font size for axes labels and title
+% ax = gca; % Current axes handle
+% ax.FontSize = fontsize1; % Set the font size for axis tick labels
+% ax.YTick = [5,7.5,10,12.5,15];
+% ax.XTick = [3, 4, 5, 6, 7]; % Set specific x-axis ticks
+% 
+% % Add labels and legend
+% xlabel('Number of Panels', 'FontSize', fontsize1);
+% ylabel('Row spacing (m)', 'FontSize', fontsize1);
+% zlabel('Land Efficiency Ratio', 'FontSize', fontsize1);
+% % title('Land Efficiency as a Function of Number of Panels and Row Spacing', 'FontSize', 26);
+% 
+% % Adding a colorbar for visualising the land efficiency ratio
+% cb = colorbar;
+% cb.Label.String = 'Land Efficiency Ratio';
+% cb.Label.FontSize = fontsize1; % Set the font size for the color bar label
+% cb.FontSize = fontsize1; % Set the font size for the color bar ticks
+% 
+% % Adding legend to identify plots
+% legend('70% Agricultural Yield', '70% Electrical Yield', 'FontSize', fontsize1);
+% 
+% view(2); % Change the view to 2D
+% set(gcf, 'WindowState', 'maximized'); % Maximize the figure window
+% 
+% % Release the hold on the current figure
+% hold off;
+% 
+% 
+% 
+
+
+
+
+
+
+
+
+
+
+% Plot for Agricultural Percentage Change
 figure;
-plot3(Xgrid, Ygrid, plotcontourline70, 'ro', 'MarkerSize', 2);
-hold on% Red circles for 70% agricultural yield
-plot3(Xgrid, Ygrid, plotelecline70, 'bo', 'MarkerSize', 2); % Blue circles for 70% electrical yield
+surf(Xgrid, Ygrid, AgriPercentChangeGrid);
+shading interp;  % This makes the surface look smoother
+hold on;
 
-surf(Xgrid, Ygrid, Z3grid); % Plotting the 3D surface
-shading interp; % Interpolating shading for surface
+% Add contour lines to the agricultural percentage change surface plot
+contour3(Xgrid, Ygrid, AgriPercentChangeGrid, 'k');
 
-
-% Add contour lines to the land efficiency surface plot
-
-
-% Plot specific contour lines representing specific yields
-
-contour3(Xgrid, Ygrid, Z3grid, 'k'); % Black contour lines
 % Set the font size for axes labels and title
+fontsize1 = 40; % Define the font size
 ax = gca; % Current axes handle
-ax.FontSize = 26; % Set the font size for axis tick labels
+ax.FontSize = fontsize1; % Set the font size for axis tick labels
+ax.TickLabelInterpreter = 'latex'; % Set tick label interpreter to LaTeX
+ax.YTick = [5,7.5,10,12.5,15];
 ax.XTick = [3, 4, 5, 6, 7]; % Set specific x-axis ticks
 
 % Add labels and legend
-xlabel('Number of Panels', 'FontSize', 32);
-ylabel('Row spacing (m)', 'FontSize', 32);
-zlabel('Land Efficiency Ratio', 'FontSize', 32);
-% title('Land Efficiency as a Function of Number of Panels and Row Spacing', 'FontSize', 26);
-
-% Adding a colorbar for visualising the land efficiency ratio
-cb = colorbar;
-cb.Label.String = 'Land Efficiency Ratio';
-cb.Label.FontSize = 26; % Set the font size for the color bar label
-cb.FontSize = 26; % Set the font size for the color bar ticks
-
-% Adding legend to identify plots
-legend('70% Agricultural Yield', '70% Electrical Yield', 'FontSize', 32);
-
-view(2); % Change the view to 2D
-set(gcf, 'WindowState', 'maximized'); % Maximize the figure window
+xlabel('Number of Panels', 'Interpreter', 'latex', 'FontSize', fontsize1);
+ylabel('Row spacing (m)', 'Interpreter', 'latex', 'FontSize', fontsize1);
+zlabel('Agricultural Yield Change (\%)', 'Interpreter', 'latex', 'FontSize', fontsize1);
+cb = colorbar;  % Adds a color bar to the right of the plot to indicate value ranges
+cb.Label.String = 'Relative Agricultural Yield';
+cb.Label.FontSize = fontsize1; % Set the font size for the color bar label
+cb.TickLabelInterpreter = 'latex'; % Set tick label interpreter for color bar to LaTeX
+cb.FontSize = fontsize1; % Set the font size for the color bar ticks
+view(2);  % Adjust the view to be top-down
+set(gcf, 'WindowState', 'maximized');  % Make the figure fullscreen
 
 % Release the hold on the current figure
 hold off;
-
-
-% 
-% % Plot for Agricultural Percentage Change
-% figure;
-% surf(Xgrid, Ygrid, AgriPercentChangeGrid);
-% shading interp;  % This makes the surface look smoother
-% hold on;
-% 
-% % Add contour lines to the agricultural percentage change surface plot
-% contour3(Xgrid, Ygrid, AgriPercentChangeGrid, 'k');
-% % Set the font size for axes labels and title
-% ax = gca; % Current axes handle
-% ax.FontSize = 22; % Set the font size for axis tick labels
-% ax.XTick = [3, 4, 5, 6, 7]; % Set specific x-axis ticks
-% % Add labels and legend
-% xlabel('Number of Panels', 'FontSize', 22);
-% ylabel('Row spacing (m)', 'FontSize', 22);
-% zlabel('Agricultural Yield Change (%)', 'FontSize', 22);
-% title('Relative Agricultural Yield as a Function Row Spacing and Number of Panels',  'FontSize', 22);
-% cb = colorbar;  % Adds a color bar to the right of the plot to indicate value ranges
-% % legend('Agricultural Yield Change', 'FontSize', 22);
-% % cb = colorbar;  % Adds a color bar to the right of the plot to indicate value ranges
-% cb.Label.String = 'Relative Agricultural Yield';
-% cb.Label.FontSize = 22; % Set the font size for the color bar label
-% cb.FontSize = 22; % Set the font size for the color bar ticks
-% view(2);  % Adjust the view to be top-down
-% set(gcf, 'WindowState', 'maximized');  % Make the figure fullscreen
-% 
-% % Release the hold on the current figure
-% hold off;
-% 
