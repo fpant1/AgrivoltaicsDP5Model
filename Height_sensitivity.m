@@ -41,12 +41,12 @@ harvesting = 217;
 
 
 % Define the array parameters
-num_modules_x = 4;
-num_modules_y = 5;
+num_modules_x = 8;
+num_modules_y = 8;
 module_spacing = 10.5;
 total_modules = num_modules_y * num_modules_x;
 
-setup_ground = createGround(5,20,5,20,4,4);
+setup_ground = createGround(5,20,5,20,3,3);
 points_x = setup_ground.points(:,1);
 points_y = setup_ground.points(:,2);
 
@@ -61,8 +61,9 @@ results = table();
 
 % Sensitivity study ranges
 num_panels_range = [3, 5, 6, 7];
-row_spacing_range = [5, 7.5,10,12.5, 15, 20];
+row_spacing_range = [5, 10, 15];
 crop_protection_range = [0, 1];
+height_range = [-2,0,1];
 
 
 
@@ -153,10 +154,13 @@ temp_data = pvgis.gettempData(latitude,longitude,  1);
 
 % Loop through each combination of parameters
 counter = 1; % Counter for indexing into the results table
-num_panels = 5;
+num_panels = 4;
 % row_spacing = 6;
 % for num_panels = num_panels_range
-    for row_spacing = row_spacing_range
+for row_spacing = row_spacing_range
+    for height_shift = height_range
+
+        height= 4+height_shift;
 %         for crop_protection = crop_protection_range
             
 
@@ -208,8 +212,8 @@ num_panels = 5;
         x_difference = max_x - min_x;
         
         % Beam offset values in meters
-        beam_offset1 = [0.3803, 0.45975, 4.262]; % Converted from mm to meters
-        beam_offset2 = [0.3803, 1.85925, 4.262]; % Converted from mm to meters
+        beam_offset1 = [0.3803, 0.45975, 4.262+height_shift]; % Converted from mm to meters
+        beam_offset2 = [0.3803, 1.85925, 4.262+height_shift]; % Converted from mm to meters
         
         
         
@@ -230,8 +234,8 @@ num_panels = 5;
         
         
         % Beam offset values in meters
-        crossbeam_offset1 = [0.3778, 0.52725, 4.262]; % Converted from mm to meters
-        crossbeam_offset2 = [0.3778 + x_difference+ 0.0675, 0.52725, 4.262];
+        crossbeam_offset1 = [0.3778, 0.52725, 4.262+height_shift]; % Converted from mm to meters
+        crossbeam_offset2 = [0.3778 + x_difference+ 0.0675, 0.52725, 4.262+height_shift];
         
         % Store the modified beam vertices and faces
         all_beams{3}.vertices = V_beam + crossbeam_offset1;
@@ -256,8 +260,8 @@ num_panels = 5;
         all_pylons = cell(1, 2);
         
         % Pylon offset values in meters (to be edited)
-        pylon_offset1 = [0, 1.102,4]; % Placeholder
-        pylon_offset2 = [x_difference + 0.5291,1.102, 4]; % Placeholder
+        pylon_offset1 = [0, 1.102,4+height_shift]; % Placeholder
+        pylon_offset2 = [x_difference + 0.5291,1.102, 4+height_shift]; % Placeholder
         
         % Store the modified pylon vertices and faces (placeholders for now)
         all_pylons{1}.vertices = V_pylons + pylon_offset1;
@@ -281,7 +285,7 @@ num_panels = 5;
         V = V / 1000; % Convert from mm to meters
         
         % Panel offset values in meters
-        panel_offset = [1.6833, 0, 4.262]; % Converted from mm to meters
+        panel_offset = [1.6833, 0, 4.262+ height_shift ]; % Converted from mm to meters
         
         % Create a new structure to store the panel geometry
         % panel_geometry = struct('vertices', V, 'faces', F);
@@ -440,7 +444,7 @@ num_panels = 5;
 
             % % year,resolution,UTC,latitude,longitude,altitude,blocking_object,setup_ground
             [shading_factor, vertices, max_x_offset, max_y_offset] = createTable.shadingFactor(2019,60,1,37.193,-5.853,36,rotated_struct, ...
-                    setup_ground.points, num_modules_y, num_modules_x, module_spacing, row_spacing, all_panels{1}.faces, all_beams{1}.faces, all_pylons{1}.faces, num_modules_y, tracking_angles);
+                    setup_ground.points, num_modules_y, num_modules_x, module_spacing, row_spacing, all_panels{1}.faces, all_beams{1}.faces, all_pylons{1}.faces, 13, tracking_angles);
        
             [diffuse_factor,gcr] = createTable.diffuseappr(max_x_offset, max_y_offset, panel_area,total_modules, max_height, num_panels);
             
@@ -467,15 +471,17 @@ num_panels = 5;
             
             final_agricultural_output = tomato_sunny_SD.mean_outputs*field_area;
             
-            results(counter,:) = table(total_panels,num_modules, num_rows, num_panels, row_spacing, gcr, installed_capacity_kW, final_site_kWh_output, final_agricultural_output, myData.totaltotalshadingfactor);
+            results(counter,:) = table(total_panels,num_modules, num_rows, num_panels, row_spacing, gcr, installed_capacity_kW, final_site_kWh_output, final_agricultural_output, myData.totaltotalshadingfactor,height);
                         counter = counter + 1;
 
 %         end
 %     end
+    end
 end
 
+
 % Save the results table to a file
-% save('shading_validation.mat', 'results');
+save('height_validation2.mat', 'results');
 
 % Display the first few rows of the results for verification
 disp(results(1:5,:));
