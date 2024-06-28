@@ -30,7 +30,7 @@ field_width = 30;
 field_area = (field_length * field_width / 10000);
 
 % ground analysis mesh
-setup_ground = createGround(10,25,5,20,10,10);
+setup_ground = createGround(10,25,5,20,3,3);
 points_x = setup_ground.points(:,1);
 points_y = setup_ground.points(:,2);
 
@@ -568,7 +568,7 @@ growthtosen = 166;
 
 % gcr = 0.107;
 % Instantiate TomatoModel with parameters for SunnySD cultivar
-tomato_sunny_SD = CropModel(2800, 0.68, 520, 400, 6, 26, 1.00, 100, 5, 32, 45, 0.07, 2.5, 'tmyiradata.csv', 1.0923, rainfall_daily, 0, gcr);
+tomato_sunny_SD = CropModel(2800, 0.68, 520, 400, 6, 26, 1.00, 100, 5, 32, 45, 0.07, 2.5, 'case_studies_temp_modelling.csv', 1.0923, rainfall_daily, 0, gcr);
 tomato_sunny_SD = tomato_sunny_SD.calculate_temp_diff(0);
 
 tomato_sunny_SD = tomato_sunny_SD.fTemp();

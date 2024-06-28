@@ -2,7 +2,7 @@
 % clear;
 % 
 % % Load data
-% load('height_validation2.mat');
+% load('height_validation3.mat');
 
 % Extract necessary variables from results
 height = results.Var11;  % Assuming this represents different heights
@@ -12,7 +12,7 @@ final_agricultural_output = results.final_agricultural_output;
 
 % Constants and calculations
 electrical_limit = 1.5e10 * 7.36613965e-4;
-max_agricultural_output = max(final_agricultural_output)+0.11;
+max_agricultural_output = max(final_agricultural_output)+0.18;
 % max_electrical_output = electrical_limit;
 max_electrical_output = max(final_site_kWh_output);
 
@@ -77,7 +77,7 @@ hold off; % Release the hold
 
 
 % Save the results table to a file
-save('height_validation3.mat', 'results');
+% save('height_validation3.mat', 'results');
 % 
 % % Plotting the percentage change in electrical output with contours
 % figure;
