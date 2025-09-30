@@ -90,4 +90,19 @@ By coupling **solar yield** and **crop growth** in one framework, the tool can b
 
 ---
 
+## System Architecture  
+
+To give an overview of how the model operates, the following diagrams illustrate the system structure.  
+
+- **Figure: Modelling Input and Output Parameters** – shows the key design parameters fed into the agrivoltaic model and the main performance indicators returned (crop yield, energy yield, microclimate metrics).  
+- **Figure: Full Modelling Flow** – outlines the complete simulation pipeline, from input data through solar and crop modelling to the generation of combined performance metrics.  
+
+<p align="center">
+  <img src="figures/SystemArch1.png" alt="System Architecture 1 – Inputs and Outputs" width="70%">
+</p>  
+
+<p align="center">
+  <img src="figures/SystemArch2.png" alt="System Architecture 2 – Full Modelling Flow" width="85%">
+</p>  
+
 
