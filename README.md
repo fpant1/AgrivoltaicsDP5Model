@@ -27,11 +27,11 @@ The system is built as a **modular framework**, allowing independent validation 
 ### Visualisation of the Setup
 
 <div align="center">
-  <img src="figures/example.png" width="45%" alt="MATLAB Model of Agrivoltaic Structure"/>
-  <img src="figures/cad_design.png" width="45%" alt="CAD Design of Agrivoltaic Structure"/>
+  <img src="figures/example.png" width="70%" alt="MATLAB Model of Agrivoltaic Structure"/>
+
 </div>
 
-*Left: MATLAB recreation of the agrivoltaic modules in rows. Right: CAD design of the physical module.*  
+*Figure: MATLAB recreation of the agrivoltaic modules in rows. 
 
 ---
 
