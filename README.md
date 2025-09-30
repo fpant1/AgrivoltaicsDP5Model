@@ -10,7 +10,7 @@ For a more detailed explanation of the modelling methodology, you can download t
 
 ## 🔧 Model Setup
 
-The model recreates a modular agrivoltaic design in MATLAB, defining a range of design parameters such as:
+The model recreates our modular agrivoltaic design in MATLAB, defining a range of design parameters such as:
 
 - **Module geometry**: panel size, tilt, and tracking configuration  
 - **Array structure**: row spacing, ground coverage ratio (GCR), height  
@@ -21,17 +21,17 @@ The system is built as a **modular framework**, allowing independent validation 
 
 - **Solar energy modelling**  
 - **Shading and irradiance reduction**  
-- **Microclimate representation**  
+- **Microclimate modelling**  
 - **Crop growth modelling**
 
 ### Visualisation of the Setup
 
 <div align="center">
-  <img src="figures/example.png" width="45%" alt="MATLAB Model of Agrivoltaic Structure"/>
-  <img src="figures/cad_design.png" width="45%" alt="CAD Design of Agrivoltaic Structure"/>
+  <img src="figures/example.png" width="70%" alt="MATLAB Model of Agrivoltaic Structure"/>
+
 </div>
 
-*Left: Simplified MATLAB recreation of the agrivoltaic module. Right: CAD design of the physical module.*  
+*Figure: MATLAB visualisation of the agrivoltaic modules in rows for analysis. 
 
 ---
 
@@ -63,9 +63,10 @@ This allows analysis of how **reduced solar input** interacts with **water avail
 
 ## 🌾 Crop Growth Modelling
 
-The crop model uses crop-specific physiological inputs (e.g. **tomato** and **wheat**) to simulate yield under agrivoltaic conditions.  
+The crop growth was modelled using the SIMPLE model, a widely applied framework for simulating water and nitrogen balance and crop production (see [SIMPLE model reference](https://www.sciencedirect.com/science/article/abs/pii/S1161030118304234)).  
 
-- **Inputs**: sourced from experimental studies and growth guides.  
+
+- **Inputs**: 13 crop-defining parameters, microclimate modelling outputs, solar energy reduced by the shading of the agrivoltaic array.
 - **Outputs**: yield reduction under shade, validated against reported crop trials.  
 - **Scenarios**: open-field baseline, agrivoltaic with shading, and irrigated vs rainfed systems.  
 
@@ -73,8 +74,8 @@ The crop model uses crop-specific physiological inputs (e.g. **tomato** and **wh
   <img src="figures/Firstpotposterfig.png" width="70%" alt="Crop yield comparison"/>
 </div>
 
-*Figure: Distribution of crop yield due to the shading distribution caused by one module.*
----
+*Figure: Distribution of crop yield due to the shading distribution caused by one module.
+
 
 
 ---
