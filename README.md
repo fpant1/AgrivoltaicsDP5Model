@@ -41,7 +41,7 @@ The solar model incorporates **tracking algorithms** and computes **direct and d
 - **Sensitivity Analysis**: demonstrates the relationship between GCR and shading, validating against reported values in literature.  
 
 <div align="center">
-  <img src="figures/shading_animation.gif" width="70%" alt="GIF of shading simulation over a day"/>
+  <img src="figures/ezgif.com-animated-gif-maker (6).gif" width="70%" alt="GIF of shading simulation over a day"/>
 </div>
 
 *Figure: Example shading simulation visualised as irradiance distribution beneath the array.*  
