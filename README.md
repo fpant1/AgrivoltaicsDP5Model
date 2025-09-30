@@ -63,9 +63,10 @@ This allows analysis of how **reduced solar input** interacts with **water avail
 
 ## 🌾 Crop Growth Modelling
 
-The crop model uses crop-specific physiological inputs (e.g. **tomato** and **wheat**) to simulate yield under agrivoltaic conditions.  
+The crop growth was modelled using the SIMPLE model, a widely applied framework for simulating water and nitrogen balance and crop production (see [SIMPLE model reference](https://www.sciencedirect.com/science/article/abs/pii/S1161030118304234)).  
 
-- **Inputs**: sourced from experimental studies and growth guides.  
+
+- **Inputs**: 13 crop-defining parameters, microclimate modelling outputs, solar energy reduced by the shading of the agrivoltaic array.
 - **Outputs**: yield reduction under shade, validated against reported crop trials.  
 - **Scenarios**: open-field baseline, agrivoltaic with shading, and irrigated vs rainfed systems.  
 
@@ -73,8 +74,8 @@ The crop model uses crop-specific physiological inputs (e.g. **tomato** and **wh
   <img src="figures/Firstpotposterfig.png" width="70%" alt="Crop yield comparison"/>
 </div>
 
-Figure: Distribution of crop yield due to the shading distribution caused by one module.
----
+*Figure: Distribution of crop yield due to the shading distribution caused by one module.
+
 
 
 ---
