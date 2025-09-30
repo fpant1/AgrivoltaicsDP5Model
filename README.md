@@ -10,7 +10,7 @@ For a more detailed explanation of the modelling methodology, you can download t
 
 ## 🔧 Model Setup
 
-The model recreates a modular agrivoltaic design in MATLAB, defining a range of design parameters such as:
+The model recreates our modular agrivoltaic design in MATLAB, defining a range of design parameters such as:
 
 - **Module geometry**: panel size, tilt, and tracking configuration  
 - **Array structure**: row spacing, ground coverage ratio (GCR), height  
@@ -21,7 +21,7 @@ The system is built as a **modular framework**, allowing independent validation 
 
 - **Solar energy modelling**  
 - **Shading and irradiance reduction**  
-- **Microclimate representation**  
+- **Microclimate modelling**  
 - **Crop growth modelling**
 
 ### Visualisation of the Setup
@@ -31,7 +31,7 @@ The system is built as a **modular framework**, allowing independent validation 
   <img src="figures/cad_design.png" width="45%" alt="CAD Design of Agrivoltaic Structure"/>
 </div>
 
-*Left: Simplified MATLAB recreation of the agrivoltaic module. Right: CAD design of the physical module.*  
+*Left: MATLAB recreation of the agrivoltaic modules in rows. Right: CAD design of the physical module.*  
 
 ---
 
