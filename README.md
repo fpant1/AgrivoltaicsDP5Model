@@ -71,22 +71,9 @@ The crop model uses crop-specific physiological inputs (e.g. **tomato** and **wh
   <img src="figures/Firstpotposterfig.png" width="70%" alt="Crop yield comparison"/>
 </div>
 
-*Figure: Comparison of modelled vs expected yields for tomato (Spain) and wheat (UK).*  
-
+*Figure: Distribution of crop yield due to the shading distribution caused by one module.*
 ---
 
-## 📊 Key Findings
-
-- **Shading Validation**:  
-  Average reductions of ~30% in irradiance reported in literature align with model outputs (36–59% depending on GCR).  
-
-- **Crop Validation**:  
-  - Tomatoes (Spain): 28% reduction under agrivoltaics.  
-  - Wheat (UK): 33% reduction under agrivoltaics.  
-  - Irrigation boosts yields by 57% (Spain) and 24% (UK).  
-
-- **Design Insight**:  
-  Tomatoes show slightly greater tolerance to shading than wheat, suggesting crop choice significantly influences system optimisation.  
 
 ---
 
@@ -100,10 +87,4 @@ By coupling **solar yield** and **crop growth** in one framework, the tool can b
 
 ---
 
-## 📚 References
 
-- Weselek, A., et al. (2021). *Agrivoltaic systems: applications, challenges, and opportunities.*  
-- AHDB (2021). *Wheat Growth Guide.*  
-- Dupraz, C., et al. (2011). *Combining solar energy capture with food production: the concept of agrivoltaics.*  
-
----
