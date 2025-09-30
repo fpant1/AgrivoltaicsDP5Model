@@ -31,7 +31,7 @@ The system is built as a **modular framework**, allowing independent validation 
 
 </div>
 
-*Figure: MATLAB recreation of the agrivoltaic modules in rows. 
+*Figure: MATLAB visualisation of the agrivoltaic modules in rows for analysis. 
 
 ---
 
