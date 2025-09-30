@@ -4,6 +4,8 @@ This project develops a **digital twin of an agrivoltaic scenario**, simulating 
 
 The overarching goal is to demonstrate how agrivoltaic systems can be optimised to maximise land productivity, providing a balance between **renewable energy production** and **sustainable agriculture**.  
 
+For a more detailed explanation of the modelling methodology, you can download the full report here: [Frank_Panton_Individual_Annex.pdf](figures/Frank_Panton_Individual_Annex.pdf).  
+
 ---
 
 ## 🔧 Model Setup
