@@ -73,7 +73,7 @@ The crop model uses crop-specific physiological inputs (e.g. **tomato** and **wh
   <img src="figures/Firstpotposterfig.png" width="70%" alt="Crop yield comparison"/>
 </div>
 
-*Figure: Distribution of crop yield due to the shading distribution caused by one module.*
+Figure: Distribution of crop yield due to the shading distribution caused by one module.
 ---
 
 
