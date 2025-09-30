@@ -68,7 +68,7 @@ The crop model uses crop-specific physiological inputs (e.g. **tomato** and **wh
 - **Scenarios**: open-field baseline, agrivoltaic with shading, and irrigated vs rainfed systems.  
 
 <div align="center">
-  <img src="figures/crop_yield_comparison.png" width="70%" alt="Crop yield comparison"/>
+  <img src="figures/Firstpotposterfig.png" width="70%" alt="Crop yield comparison"/>
 </div>
 
 *Figure: Comparison of modelled vs expected yields for tomato (Spain) and wheat (UK).*  
