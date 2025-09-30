@@ -10,7 +10,7 @@ For a more detailed explanation of the modelling methodology, you can download t
 
 ## 🔧 Model Setup
 
-The model recreates our modular agrivoltaic design in MATLAB, defining a range of design parameters such as:
+The model recreates our modular agrivoltaic design in MATLAB, defining a range of modelling parameters and input parameters, either user-defined or sourced from open source API's such as:
 
 - **Module geometry**: panel size, tilt, and tracking configuration  
 - **Array structure**: row spacing, ground coverage ratio (GCR), height  
